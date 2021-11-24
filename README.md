@@ -2,7 +2,7 @@
 
 Library to Provide a CSRF (Cross-Site Request Forgery) protection layer. You must also include Tower_cookies in order to use this Library.
 
-[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.1.0-blue)](https://crates.io/crates/axum_csrf)
+[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.1.1-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
 # Example
@@ -27,7 +27,7 @@ async fn main() {
     // build our application with some routes
     let app = Router::new()
         .route("/greet", get(greet))
-        .route("/check_key", put(check_key))
+        .route("/check_key", post(check_key))
         .layer(tower_cookies::CookieManagerLayer::new())
         .layer(CsrfLayer::new(CsrfConfig::default()))
 
@@ -43,8 +43,12 @@ async fn main() {
 
 Get the Hash for the Form to insert into the html for return.
 ```rust
-async fn greet(token: CsrfToken) -> &'static str {
-    token.authenticity_token();
+async fn greet(token: CsrfToken) -> impl IntoResponse {
+    let keys = Keys {
+        authenticity_token: token.authenticity_token(),
+    }
+
+    HtmlTemplate(keys)
 }
 ```
 
@@ -58,7 +62,8 @@ Insert it in the html form
 
 Add the Attribute to your form return structs
 ```rust
-#[derive(Deserialize, Serialize)]
+#[derive(Template, Deserialize, Serialize)]
+#[template(path = "hello.html")]
 struct Keys {
     authenticity_token: String,
     // your attributes
@@ -67,7 +72,7 @@ struct Keys {
 
 Validate the CSRF Key
 ```rust
-async fn check_key(token: CsrfToken, Json(payload): Json<Keys>,) -> &'static str {
+async fn check_key(token: CsrfToken, Form(payload): Form<Keys>,) -> &'static str {
     if let Err(_) = token.verify(&payload.authenticity_token) {
         "Token is invalid"
     } else {
