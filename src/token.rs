@@ -13,7 +13,7 @@ const BCRYPT_COST: u32 = 8;
 ///Failure Error when verification does not work or match.
 pub struct VerificationFailure;
 
-///This is the Token that is generated when a user is routed to a page.
+/// This is the Token that is generated when a user is routed to a page.
 /// If a Cookie exists then it will be used as the Token.
 /// Otherwise a new one is made.
 #[derive(Debug, Clone)]
@@ -78,7 +78,7 @@ impl CsrfToken {
         hash(&self.0, BCRYPT_COST).unwrap()
     }
 
-    ///Verifys that the form returned Token and the cookie tokens match.
+    ///Verifies that the form returned Token and the cookie tokens match.
     pub fn verify(&self, form_authenticity_token: &str) -> Result<(), VerificationFailure> {
         if verify(&self.0, form_authenticity_token).unwrap_or(false) {
             Ok(())

@@ -2,7 +2,7 @@
 
 Library to Provide a CSRF (Cross-Site Request Forgery) protection layer. You must also include Tower_cookies in order to use this Library.
 
-[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.1.3-blue)](https://crates.io/crates/axum_csrf)
+[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.2.0-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
 # Example
