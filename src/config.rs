@@ -13,18 +13,21 @@ pub struct CsrfConfig {
 
 impl CsrfConfig {
     /// Set CSRF Cookie lifespan
+    #[must_use]
     pub fn with_lifetime(mut self, time: Duration) -> Self {
         self.lifespan = time;
         self
     }
 
     /// Set CSRF cookie name
+    #[must_use]
     pub fn with_cookie_name(mut self, name: &str) -> Self {
         self.cookie_name = name.into();
         self
     }
 
     /// Set CSRF Token character length
+    #[must_use]
     pub fn with_cookie_len(mut self, length: usize) -> Self {
         self.cookie_len = length;
         self

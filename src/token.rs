@@ -56,7 +56,7 @@ where
                 .collect();
             let encoded = base64::encode(&values[..]);
             let mut now = time::OffsetDateTime::now_utc();
-            now = now + layer.config.lifespan;
+            now += layer.config.lifespan;
 
             let cookie = Cookie::build(layer.config.cookie_name.clone(), encoded.clone())
                 .expires(Expiration::DateTime(now))
@@ -79,7 +79,7 @@ impl CsrfToken {
     }
 
     ///Verifys that the form returned Token and the cookie tokens match.
-    pub fn verify(&self, form_authenticity_token: &String) -> Result<(), VerificationFailure> {
+    pub fn verify(&self, form_authenticity_token: &str) -> Result<(), VerificationFailure> {
         if verify(&self.0, form_authenticity_token).unwrap_or(false) {
             Ok(())
         } else {
