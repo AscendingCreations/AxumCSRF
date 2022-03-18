@@ -1,5 +1,5 @@
 use crate::CsrfConfig;
-use axum::AddExtensionLayer;
+use axum::extract::Extension;
 use tower_cookies::Key;
 
 /// CSRF layer struct used to pass key and CsrfConfig around.
@@ -12,8 +12,8 @@ pub struct CsrfLayer {
 
 impl CsrfLayer {
     /// Creates the CSRF Protection Layer.
-    pub fn new(config: CsrfConfig) -> AddExtensionLayer<Self> {
-        AddExtensionLayer::new(Self {
+    pub fn new(config: CsrfConfig) -> Extension<Self> {
+        Extension(Self {
             config,
             key: Key::generate(),
         })
