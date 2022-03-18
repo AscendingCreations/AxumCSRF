@@ -2,7 +2,7 @@
 
 Library to Provide a CSRF (Cross-Site Request Forgery) protection layer. You must also include Tower_cookies in order to use this Library.
 
-[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.2.1-blue)](https://crates.io/crates/axum_csrf)
+[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.2.2-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
 # Example
@@ -11,12 +11,6 @@ Add it to Axums via layer.
 ```rust
 #[tokio::main]
 async fn main() {
-    // Set the RUST_LOG, if it hasn't been explicitly defined
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "example_templates=debug,tower_http=debug")
-    }
-    tracing_subscriber::fmt::init();
-
     let config = //load your config here.
     let poll = init_pool(&config).unwrap();
 
@@ -33,7 +27,6 @@ async fn main() {
 
     // run it
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
