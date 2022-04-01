@@ -22,8 +22,7 @@ async fn main() {
     let app = Router::new()
         .route("/greet", get(greet))
         .route("/check_key", post(check_key))
-        .layer(CsrfLayer::new(CsrfConfig::default()))
-        .layer(tower_cookies::CookieManagerLayer::new());
+        .layer(CsrfLayer::new(CsrfConfig::default()));
 
     // run it
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

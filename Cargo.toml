@@ -11,10 +11,10 @@ keywords = ["Axum", "Tower", "CSRF", "Cookies"]
 repository = "https://github.com/AscendingCreations/AxumCSRF"
 
 [dependencies]
-axum = "0.4"
+axum = "0.5"
 async-trait = "0.1"
 rand = "0.8"
-tower-cookies = { version = "0.5", features = ["signed"] }
+tower-cookies = { version = "0.6", features = ["signed"] }
 bcrypt = "0.12"
 time = { version = "0.3", default-features = false, features = ["std"] }
 base64 = "0.13"
