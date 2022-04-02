@@ -1,6 +1,6 @@
 use crate::CsrfConfig;
 use axum::extract::Extension;
-use tower_cookies::Key;
+use cookie::Key;
 
 /// CSRF layer struct used to pass key and CsrfConfig around.
 #[derive(Clone)]

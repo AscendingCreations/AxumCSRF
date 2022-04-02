@@ -1,8 +1,8 @@
 [package]
 name = "axum_csrf"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Andrew Wheeler <genusistimelord@gmail.com>"]
-description = "Library to Provide a CSRF (Cross-Site Request Forgery) protection layer. You must also include Tower_cookies in order to use this Library."
+description = "Library to Provide a CSRF (Cross-Site Request Forgery) protection layer."
 edition = "2021"
 license = "MIT"
 readme = "README.md"
@@ -14,8 +14,11 @@ repository = "https://github.com/AscendingCreations/AxumCSRF"
 axum = "0.5"
 async-trait = "0.1"
 rand = "0.8"
-tower-cookies = { version = "0.6", features = ["signed"] }
 bcrypt = "0.12"
 time = { version = "0.3", default-features = false, features = ["std"] }
 base64 = "0.13"
-cookie = { version = "0.16", features = ["percent-encode"] }
+cookie = { version = "0.16", features = [
+    "percent-encode",
+    "signed",
+    "private",
+] }
