@@ -7,7 +7,7 @@ edition = "2021"
 license = "MIT"
 readme = "README.md"
 documentation = "https://docs.rs/axum_csrf"
-keywords = ["Axum", "Tower", "CSRF", "Cookies"]
+keywords = ["Axum", "CSRF", "Cookies"]
 repository = "https://github.com/AscendingCreations/AxumCSRF"
 
 [dependencies]

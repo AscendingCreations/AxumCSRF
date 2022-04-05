@@ -40,7 +40,8 @@ async fn greet(token: CsrfToken) -> impl IntoResponse {
         authenticity_token: token.authenticity_token(),
     }
 
-    HtmlTemplate(keys)
+    //we must return the token so that into_response will run and add it to our response cookies.
+    (token, HtmlTemplate(keys))
 }
 ```
 
