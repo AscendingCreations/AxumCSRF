@@ -73,3 +73,7 @@ async fn check_key(token: CsrfToken, Form(payload): Form<Keys>,) -> &'static str
     }
 }
 ```
+
+# Help
+
+If you need help with this library please go to our [Discord Group](https://discord.gg/xKkm7UhM36)
