@@ -18,4 +18,39 @@ impl CsrfLayer {
             key: Key::generate(),
         })
     }
+
+    pub fn build() -> CsrfLayerBuilder {
+        CsrfLayerBuilder::new()
+    }
+}
+
+pub struct CsrfLayerBuilder {
+    config: Option<CsrfConfig>,
+    key: Option<Key>,
+}
+
+impl CsrfLayerBuilder {
+    pub fn new() -> Self {
+        Self {
+            config: None,
+            key: None,
+        }
+    }
+
+    pub fn finish(self) -> Extension<CsrfLayer> {
+        Extension(CsrfLayer {
+            config: self.config.unwrap_or_else(CsrfConfig::default),
+            key: self.key.unwrap_or_else(Key::generate),
+        })
+    }
+
+    pub fn config(mut self, config: CsrfConfig) -> Self {
+        self.config = Some(config);
+        self
+    }
+
+    pub fn key(mut self, key: Key) -> Self {
+        self.key = Some(key);
+        self
+    }
 }
