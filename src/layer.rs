@@ -26,6 +26,7 @@ impl CsrfLayer {
 }
 
 /// A builder to construct a CsrfLayer.
+#[derive(Default)]
 pub struct CsrfLayerBuilder {
     config: Option<CsrfConfig>,
     key: Option<Key>,
@@ -45,7 +46,7 @@ impl CsrfLayerBuilder {
     /// If any fields have not been set, this will construct default values for them.
     pub fn finish(self) -> Extension<CsrfLayer> {
         Extension(CsrfLayer {
-            config: self.config.unwrap_or_else(CsrfConfig::default),
+            config: self.config.unwrap_or_default(),
             key: self.key.unwrap_or_else(Key::generate),
         })
     }
