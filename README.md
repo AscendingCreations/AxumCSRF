@@ -33,6 +33,20 @@ async fn main() {
 }
 ```
 
+If you already have an encryption key for private cookies, build the layer a different way:
+```rust
+let cookie_key = cookie::Key::generate(); // or from()/derive_from()
+
+let csrf_layer = CsrfLayer::build()
+    .config(CsrfConfig::default())
+    .key(cookie_key)
+    .finish();
+
+let app = Router::new()
+    // ...
+    .layer(csrf_layer);
+```
+
 Get the Hash for the Form to insert into the html for return.
 ```rust
 async fn greet(token: CsrfToken) -> impl IntoResponse {
