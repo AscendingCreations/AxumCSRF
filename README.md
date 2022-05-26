@@ -2,7 +2,7 @@
 
 Library to Provide a CSRF (Cross-Site Request Forgery) protection layer.
 
-[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.3.0-blue)](https://crates.io/crates/axum_csrf)
+[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.4.0-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
 # Example
