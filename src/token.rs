@@ -81,8 +81,8 @@ impl IntoResponseParts for CsrfToken {
         let cookie = Cookie::build(self.config.cookie_name.clone(), self.token.clone())
             .expires(Expiration::DateTime(now))
             .path("/")
-            .secure(true)
-            .same_site(SameSite::Strict)
+            .secure(false)
+            /*.same_site(SameSite::Strict)*/
             .http_only(true)
             .finish();
 
