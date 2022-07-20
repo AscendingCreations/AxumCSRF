@@ -1,6 +1,6 @@
 use crate::{CsrfConfig, CsrfLayer};
+use async_trait::async_trait;
 use axum::{
-    async_trait,
     extract::{FromRequest, RequestParts},
     http::{
         self,
@@ -10,7 +10,7 @@ use axum::{
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
 use bcrypt::{hash, verify};
-use cookie::{Cookie, CookieJar, Expiration, Key, SameSite};
+use cookie::{Cookie, CookieJar, Expiration, Key};
 use rand::{distributions::Standard, Rng};
 use std::convert::Infallible;
 
@@ -25,7 +25,6 @@ pub struct VerificationFailure;
 pub struct CsrfToken {
     token: String,
     config: CsrfConfig,
-    key: Key,
 }
 
 /// this auto pulls a Cookies nd Generates the CsrfToken from the extensions
@@ -42,16 +41,14 @@ where
             "Can't extract CsrfToken. Is `CSRFLayer` enabled?",
         ))?;
 
-        let cookie_jar = get_cookies(req, &layer.key);
-        let private_jar = cookie_jar.private(&layer.key);
+        let cookie_jar = get_cookies(req);
 
         //We check if the Cookie Exists as a signed Cookie or not. If so we use the value of the cookie.
         //If not we create a new one.
-        if let Some(cookie) = private_jar.get(&layer.config.cookie_name) {
+        if let Some(cookie) = cookie_jar.get_cookie(&layer.config.cookie_name, &layer.config.key) {
             Ok(CsrfToken {
                 token: cookie.value().to_string(),
                 config: layer.config.clone(),
-                key: layer.key,
             })
         } else {
             let values: Vec<u8> = rand::thread_rng()
@@ -62,7 +59,6 @@ where
             Ok(CsrfToken {
                 token: base64::encode(&values[..]),
                 config: layer.config.clone(),
-                key: layer.key,
             })
         }
     }
@@ -73,20 +69,21 @@ impl IntoResponseParts for CsrfToken {
 
     fn into_response_parts(self, mut res: ResponseParts) -> Result<ResponseParts, Self::Error> {
         let mut jar = CookieJar::new();
-        let mut private_jar = jar.private_mut(&self.key);
+        let lifespan = time::OffsetDateTime::now_utc() + self.config.lifespan;
 
-        let mut now = time::OffsetDateTime::now_utc();
-        now += self.config.lifespan;
+        let mut cookie_builder = Cookie::build(self.config.cookie_name.clone(), self.token.clone())
+            .path(self.config.cookie_path.clone())
+            .secure(self.config.cookie_secure)
+            .http_only(self.config.cookie_http_only)
+            .expires(Expiration::DateTime(lifespan));
 
-        let cookie = Cookie::build(self.config.cookie_name.clone(), self.token.clone())
-            .expires(Expiration::DateTime(now))
-            .path("/")
-            .secure(true)
-            .same_site(SameSite::Strict)
-            .http_only(true)
-            .finish();
+        if let Some(domain) = &self.config.cookie_domain {
+            cookie_builder = cookie_builder
+                .domain(domain.clone())
+                .same_site(self.config.cookie_same_site);
+        }
 
-        private_jar.add(cookie);
+        jar.add_cookie(cookie_builder.finish(), &self.config.key);
 
         set_cookies(jar, res.headers_mut());
         Ok(res)
@@ -115,9 +112,32 @@ impl CsrfToken {
     }
 }
 
-fn get_cookies<B>(req: &RequestParts<B>, key: &Key) -> CookieJar {
+pub(crate) trait CookiesExt {
+    fn get_cookie(&self, name: &str, key: &Option<Key>) -> Option<Cookie<'static>>;
+    fn add_cookie(&mut self, cookie: Cookie<'static>, key: &Option<Key>);
+}
+
+impl CookiesExt for CookieJar {
+    fn get_cookie(&self, name: &str, key: &Option<Key>) -> Option<Cookie<'static>> {
+        if let Some(key) = key {
+            self.private(key).get(name)
+        } else {
+            self.get(name).cloned()
+        }
+    }
+
+    fn add_cookie(&mut self, cookie: Cookie<'static>, key: &Option<Key>) {
+        if let Some(key) = key {
+            self.private_mut(key).add(cookie)
+        } else {
+            self.add(cookie)
+        }
+    }
+}
+
+fn get_cookies<B>(req: &RequestParts<B>) -> CookieJar {
     let mut jar = CookieJar::new();
-    let mut private_jar = jar.private_mut(key);
+
     let cookie_iter = req
         .headers()
         .get_all(COOKIE)
@@ -127,9 +147,7 @@ fn get_cookies<B>(req: &RequestParts<B>, key: &Key) -> CookieJar {
         .filter_map(|cookie| Cookie::parse_encoded(cookie.to_owned()).ok());
 
     for cookie in cookie_iter {
-        if let Some(cookie) = private_jar.decrypt(cookie) {
-            private_jar.add_original(cookie);
-        }
+        jar.add_original(cookie);
     }
 
     jar

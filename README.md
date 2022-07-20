@@ -2,7 +2,7 @@
 
 Library to Provide a CSRF (Cross-Site Request Forgery) protection layer.
 
-[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.4.1-blue)](https://crates.io/crates/axum_csrf)
+[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.5.0-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
 # Example
@@ -36,11 +36,8 @@ async fn main() {
 If you already have an encryption key for private cookies, build the layer a different way:
 ```rust
 let cookie_key = cookie::Key::generate(); // or from()/derive_from()
-
-let csrf_layer = CsrfLayer::build()
-    .config(CsrfConfig::default())
-    .key(cookie_key)
-    .finish();
+let config = CsrfConfig::default().with_key(Some(cookie_key));
+let csrf_layer = CsrfLayer::new(config);
 
 let app = Router::new()
     // ...
