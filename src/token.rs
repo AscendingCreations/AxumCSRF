@@ -1,16 +1,17 @@
 use crate::{CsrfConfig, CsrfLayer};
 use async_trait::async_trait;
-use axum::{
-    extract::{FromRequest, RequestParts},
-    http::{
-        self,
-        header::{COOKIE, SET_COOKIE},
-        HeaderMap, StatusCode,
-    },
+use axum_core::{
+    extract::FromRequestParts,
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
 use bcrypt::{hash, verify};
 use cookie::{Cookie, CookieJar, Expiration, Key};
+use http::{
+    self,
+    header::{COOKIE, SET_COOKIE},
+    request::Parts,
+    HeaderMap, StatusCode,
+};
 use rand::{distributions::Standard, Rng};
 use std::convert::Infallible;
 
@@ -29,19 +30,19 @@ pub struct CsrfToken {
 
 /// this auto pulls a Cookies nd Generates the CsrfToken from the extensions
 #[async_trait]
-impl<B> FromRequest<B> for CsrfToken
+impl<S> FromRequestParts<S> for CsrfToken
 where
-    B: Send,
+    S: Send + Sync,
 {
     type Rejection = (http::StatusCode, &'static str);
 
-    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
-        let layer = req.extensions().get::<CsrfLayer>().cloned().ok_or((
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        let layer = parts.extensions.get::<CsrfLayer>().cloned().ok_or((
             StatusCode::INTERNAL_SERVER_ERROR,
             "Can't extract CsrfToken. Is `CSRFLayer` enabled?",
         ))?;
 
-        let cookie_jar = get_cookies(req);
+        let cookie_jar = get_cookies(&mut parts.headers);
 
         //We check if the Cookie Exists as a signed Cookie or not. If so we use the value of the cookie.
         //If not we create a new one.
@@ -135,11 +136,10 @@ impl CookiesExt for CookieJar {
     }
 }
 
-fn get_cookies<B>(req: &RequestParts<B>) -> CookieJar {
+fn get_cookies(headers: &mut HeaderMap) -> CookieJar {
     let mut jar = CookieJar::new();
 
-    let cookie_iter = req
-        .headers()
+    let cookie_iter = headers
         .get_all(COOKIE)
         .into_iter()
         .filter_map(|value| value.to_str().ok())
