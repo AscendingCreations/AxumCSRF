@@ -5,6 +5,10 @@ Library to Provide a CSRF (Cross-Site Request Forgery) protection layer.
 [![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.5.0-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
+# Help
+
+If you need help with this library please go to our [Discord Group](https://discord.gg/xKkm7UhM36)
+
 # Example
 
 Add it to Axums via layer.
@@ -115,7 +119,3 @@ async fn check_key(token: CsrfToken, sessions: AxumSession, Form(payload): Form<
     }
 }
 ```
-
-# Help
-
-If you need help with this library please go to our [Discord Group](https://discord.gg/xKkm7UhM36)
