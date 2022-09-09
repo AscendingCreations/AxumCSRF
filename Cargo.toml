@@ -12,8 +12,6 @@ repository = "https://github.com/AscendingCreations/AxumCSRF"
 
 [dependencies]
 axum-core = "0.3.0-rc.1"
-tower-layer = "0.3.1"
-tower-service = "0.3.2"
 http = "0.2.8"
 async-trait = "0.1.57"
 rand = "0.8.5"
