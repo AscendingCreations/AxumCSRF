@@ -1,7 +1,7 @@
 use crate::CsrfConfig;
 use async_trait::async_trait;
 use axum_core::{
-    extract::FromRequestParts,
+    extract::{FromRef, FromRequestParts},
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
 use bcrypt::{hash, verify};
@@ -33,15 +33,12 @@ pub struct CsrfToken {
 impl<S> FromRequestParts<S> for CsrfToken
 where
     S: Send + Sync,
+    CsrfConfig: FromRef<S>,
 {
     type Rejection = (http::StatusCode, &'static str);
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        let config = parts.extensions.get::<CsrfConfig>().cloned().ok_or((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Can't extract CsrfConfig. Is `CSRFLayer` enabled?",
-        ))?;
-
+        let config = CsrfConfig::from_ref(state);
         let cookie_jar = get_cookies(&mut parts.headers);
 
         //We check if the Cookie Exists as a signed Cookie or not. If so we use the value of the cookie.
@@ -49,7 +46,7 @@ where
         if let Some(cookie) = cookie_jar.get_cookie(&config.cookie_name, &config.key) {
             Ok(CsrfToken {
                 token: cookie.value().to_string(),
-                config: config.clone(),
+                config,
             })
         } else {
             let values: Vec<u8> = rand::thread_rng()
@@ -59,7 +56,7 @@ where
 
             Ok(CsrfToken {
                 token: base64::encode(&values[..]),
-                config: config.clone(),
+                config,
             })
         }
     }
