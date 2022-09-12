@@ -37,7 +37,7 @@ where
 {
     type Rejection = (http::StatusCode, &'static str);
 
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let config = CsrfConfig::from_ref(state);
         let cookie_jar = get_cookies(&mut parts.headers);
 
