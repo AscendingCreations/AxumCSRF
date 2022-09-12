@@ -208,7 +208,7 @@ impl Default for CsrfConfig {
             cookie_http_only: true,
             cookie_secure: false,
             cookie_domain: None,
-            cookie_same_site: SameSite::None,
+            cookie_same_site: SameSite::Lax,
             cookie_len: 16,
             //We do this by default since we always want this to be secure.
             key: Some(Key::generate()),
