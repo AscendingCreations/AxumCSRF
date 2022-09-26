@@ -11,7 +11,7 @@ keywords = ["Axum", "CSRF", "Cookies"]
 repository = "https://github.com/AscendingCreations/AxumCSRF"
 
 [dependencies]
-axum-core = "0.3.0-rc.2"
+axum-core = {version = "0.3.0-rc.2", git = "https://github.com/tokio-rs/axum.git" }
 http = "0.2.8"
 async-trait = "0.1.57"
 rand = "0.8.5"
