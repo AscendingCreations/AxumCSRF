@@ -5,24 +5,21 @@ Library to Provide a CSRF (Cross-Site Request Forgery) protection layer.
 [![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.5.0-blue)](https://crates.io/crates/axum_csrf)
 [![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
 
+# Help
+
+If you need help with this library please go to our [Discord Group](https://discord.gg/xKkm7UhM36)
+
 # Example
 
 Add it to Axums via layer.
 ```rust
 #[tokio::main]
 async fn main() {
-    let config = //load your config here.
-    let poll = init_pool(&config).unwrap();
-
-    let session_config = SqlxSessionConfig::default()
-        .with_database("test")
-        .with_table_name("test_table");
 
     // build our application with some routes
-    let app = Router::new()
+    let app = Router::with_state(CsrfConfig::default())
         .route("/greet", get(greet))
         .route("/check_key", post(check_key))
-        .layer(CsrfLayer::new(CsrfConfig::default()));
 
     // run it
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
@@ -35,13 +32,10 @@ async fn main() {
 
 If you already have an encryption key for private cookies, build the layer a different way:
 ```rust
-let cookie_key = cookie::Key::generate(); // or from()/derive_from()
+let cookie_key = cookie::Key::generate();
 let config = CsrfConfig::default().with_key(Some(cookie_key));
-let csrf_layer = CsrfLayer::new(config);
 
-let app = Router::new()
-    // ...
-    .layer(csrf_layer);
+let app = Router::with_state(config)
 ```
 
 Get the Hash for the Form to insert into the html for return.
@@ -125,7 +119,3 @@ async fn check_key(token: CsrfToken, sessions: AxumSession, Form(payload): Form<
     }
 }
 ```
-
-# Help
-
-If you need help with this library please go to our [Discord Group](https://discord.gg/xKkm7UhM36)
