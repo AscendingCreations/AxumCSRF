@@ -10,7 +10,7 @@ use http::{
     self,
     header::{COOKIE, SET_COOKIE},
     request::Parts,
-    HeaderMap, StatusCode,
+    HeaderMap,
 };
 use rand::{distributions::Standard, Rng};
 use std::convert::Infallible;
