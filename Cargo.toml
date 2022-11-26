@@ -1,6 +1,6 @@
 [package]
 name = "axum_csrf"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Andrew Wheeler <genusistimelord@gmail.com>"]
 description = "Library to Provide a CSRF (Cross-Site Request Forgery) protection layer."
 edition = "2021"
@@ -11,7 +11,7 @@ keywords = ["Axum", "CSRF", "Cookies"]
 repository = "https://github.com/AscendingCreations/AxumCSRF"
 
 [dependencies]
-axum-core = {version = "0.3.0-rc.2", git = "https://github.com/tokio-rs/axum.git" }
+axum-core = "0.3.0"
 http = "0.2.8"
 async-trait = "0.1.57"
 rand = "0.8.5"
@@ -26,4 +26,4 @@ cookie = { version = "0.16.0", features = [
 
 [dev-dependencies]
 anyhow = "1.0.60"
-axum = "0.6.0-rc.2"
+axum = "0.6.0"

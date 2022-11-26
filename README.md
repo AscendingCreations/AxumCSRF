@@ -1,13 +1,26 @@
-# Axum_CSRF
-
-Library to provide a CSRF (Cross-Site Request Forgery) protection layer to axum-based web applications.
-
-[![https://crates.io/crates/axum_csrf](https://img.shields.io/badge/crates.io-v0.5.0-blue)](https://crates.io/crates/axum_csrf)
-[![Docs](https://docs.rs/axum_csrf/badge.svg)](https://docs.rs/axum_csrf)
+<h1 align="center">
+    Axum_CSRF
+</h1>
+<div align="center">
+    Library to provide a CSRF (Cross-Site Request Forgery) protection layer to axum-based web applications.
+</div>
+<br />
+<div align="center">
+    <a href="https://crates.io/crates/axum_csrf"><img src="https://img.shields.io/crates/v/axum_csrf?style=plastic" alt="crates.io"></a>
+    <a href="https://docs.rs/axum_csrf"><img src="https://docs.rs/axum_csrf/badge.svg" alt="docs.rs"></a>
+    <img src="https://img.shields.io/badge/min%20rust-1.60-green.svg" alt="Minimum Rust Version">
+</div>
 
 # Help
 
 If you need help with this library please join our [Discord Group](https://discord.gg/xKkm7UhM36)
+
+## Install
+```toml
+# Cargo.toml
+[dependencies]
+axum_csrf = "0.6.0"
+```
 
 # Example
 
@@ -35,7 +48,7 @@ If you already have an encryption key for private cookies, build the CSRF config
 let cookie_key = cookie::Key::generate();
 let config = CsrfConfig::default().with_key(Some(cookie_key));
 
-let app = Router::with_state(config)
+let app = Router::new().with_state(config)
 ```
 
 Add the attribute to your form view template context struct:
