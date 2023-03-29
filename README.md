@@ -30,9 +30,10 @@ Add it to axum via shared state:
 async fn main() {
 
     // Build our application with some routes
-    let app = Router::with_state(CsrfConfig::default())
+    let app = Router::new()
         .route("/greet", get(greet))
         .route("/check_key", post(check_key))
+        .with_state(CsrfConfig::default());
 
     // Serve the application at http://localhost:3000/
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
