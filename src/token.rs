@@ -4,7 +4,8 @@ use axum_core::{
     extract::{FromRef, FromRequestParts},
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
-use bcrypt::{hash, verify};
+use base64::Engine;
+use bcrypt::{hash, verify, BASE_64};
 use cookie::{Cookie, CookieJar, Expiration, Key};
 use http::{
     self,
@@ -55,7 +56,7 @@ where
                 .collect();
 
             Ok(CsrfToken {
-                token: base64::encode(&values[..]),
+                token: BASE_64.encode(&values[..]),
                 config,
             })
         }

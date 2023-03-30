@@ -1,3 +1,9 @@
+[workspace]
+members = [
+    ".",
+    "example/minimal",
+]
+
 [package]
 name = "axum_csrf"
 version = "0.6.0"
