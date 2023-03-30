@@ -19,7 +19,7 @@ If you need help with this library please join our [Discord Group](https://disco
 ```toml
 # Cargo.toml
 [dependencies]
-axum_csrf = "0.6.0"
+axum_csrf = "0.6.1"
 ```
 
 # Example
