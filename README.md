@@ -13,7 +13,7 @@
 
 # Help
 
-If you need help with this library please join our [Discord Group](https://discord.gg/xKkm7UhM36)
+If you need help with this library please join our [Discord Group](https://discord.gg/gVXNDwpS3Z)
 
 ## Install
 ```toml
