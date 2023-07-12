@@ -104,12 +104,10 @@ impl CsrfToken {
 
     ///Verifies that the form returned Token and the cookie tokens match.
     pub fn verify(&self, form_authenticity_token: &str) -> Result<(), crate::CsrfError> {
-        let hash = PasswordHash::new(form_authenticity_token).map_err(|_| CsrfError::PasswordHash)?;
+        let hash =
+            PasswordHash::new(form_authenticity_token).map_err(|_| CsrfError::PasswordHash)?;
         Argon2::default()
-            .verify_password(
-                self.token.as_bytes(),
-                &hash,
-            )
+            .verify_password(self.token.as_bytes(), &hash)
             .map_err(|_| CsrfError::Verify)?;
         Ok(())
     }

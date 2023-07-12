@@ -1,6 +1,6 @@
 use askama::Template;
-use axum::{Form, response::IntoResponse, routing::get, Router};
-use axum_csrf::{Key, CsrfConfig, CsrfToken};
+use axum::{response::IntoResponse, routing::get, Form, Router};
+use axum_csrf::{CsrfConfig, CsrfToken, Key};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
