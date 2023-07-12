@@ -19,7 +19,7 @@ If you need help with this library please join our [Discord Group](https://disco
 ```toml
 # Cargo.toml
 [dependencies]
-axum_csrf = "0.6.1"
+axum_csrf = "0.7.0"
 ```
 
 # Example
@@ -65,7 +65,7 @@ async fn main() {
 async fn root(token: CsrfToken) -> impl IntoResponse {
     let keys = Keys {
         //this Token is a hashed Token. it is returned and the original token is hashed for comparison.
-        authenticity_token: token.authenticity_token(),
+        authenticity_token: token.authenticity_token().unwrap(),
     };
 
     // We must return the token so that into_response will run and add it to our response cookies.

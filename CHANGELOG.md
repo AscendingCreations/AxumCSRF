@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## 0.7.0 (12. July, 2023)
+### Changed
+- Replaced Bcrypt with Argon2.
+- authenticity_token now returns an error instead of unwrapping.
+- Added Error type to give slightly better error return messages.
+
 ## 0.6.1 (30. March, 2023)
 ### Changed
 - Updated Base64 and cookie.
