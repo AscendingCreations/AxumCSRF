@@ -1,4 +1,5 @@
 pub use cookie::{Key, SameSite};
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use std::borrow::Cow;
 use time::Duration;
 
@@ -24,6 +25,7 @@ pub struct CsrfConfig {
     pub(crate) cookie_secure: bool,
     ///Encyption Key used to encypt cookies for confidentiality, integrity, and authenticity.
     pub(crate) key: Option<Key>,
+    pub(crate) salt: Cow<'static, str>,
 }
 
 impl std::fmt::Debug for CsrfConfig {
@@ -38,6 +40,7 @@ impl std::fmt::Debug for CsrfConfig {
             .field("cookie_same_site", &self.cookie_same_site)
             .field("cookie_secure", &self.cookie_secure)
             .field("key", &"key hidden")
+            .field("salt", &"salt hidden")
             .finish()
     }
 }
@@ -196,6 +199,23 @@ impl CsrfConfig {
         self.key = key;
         self
     }
+
+    /// Set's the csrf's cookie's salt.
+    ///
+    /// This is used to hash the CSRF key for the html insertion.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use axum_csrf::CsrfConfig;
+    ///
+    /// let config = CsrfConfig::default().with_salt("somesalthere");
+    /// ```
+    ///
+    #[must_use]
+    pub fn with_salt(mut self, salt: impl Into<Cow<'static, str>>) -> Self {
+        self.salt = salt.into();
+        self
+    }
 }
 
 impl Default for CsrfConfig {
@@ -209,9 +229,15 @@ impl Default for CsrfConfig {
             cookie_secure: false,
             cookie_domain: None,
             cookie_same_site: SameSite::Lax,
-            cookie_len: 16,
+            cookie_len: 32,
             //We do this by default since we always want this to be secure.
             key: Some(Key::generate()),
+            salt: thread_rng()
+                .sample_iter(&Alphanumeric)
+                .take(32)
+                .map(char::from)
+                .collect::<String>()
+                .into(),
         }
     }
 }

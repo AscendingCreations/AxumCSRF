@@ -1,11 +1,13 @@
-use crate::CsrfConfig;
+use crate::{CsrfConfig, CsrfError};
+use argon2::{
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    Argon2,
+};
 use async_trait::async_trait;
 use axum_core::{
     extract::{FromRef, FromRequestParts},
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
-use base64::Engine;
-use bcrypt::{hash, verify, BASE_64};
 use cookie::{Cookie, CookieJar, Expiration, Key};
 use http::{
     self,
@@ -13,12 +15,8 @@ use http::{
     request::Parts,
     HeaderMap,
 };
-use rand::{distributions::Standard, Rng};
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use std::convert::Infallible;
-
-const BCRYPT_COST: u32 = 8;
-///Failure Error when verification does not work or match.
-pub struct VerificationFailure;
 
 /// This is the Token that is generated when a user is routed to a page.
 /// If a Cookie exists then it will be used as the Token.
@@ -50,15 +48,13 @@ where
                 config,
             })
         } else {
-            let values: Vec<u8> = rand::thread_rng()
-                .sample_iter(Standard)
+            let token: String = thread_rng()
+                .sample_iter(&Alphanumeric)
                 .take(config.cookie_len)
+                .map(char::from)
                 .collect();
 
-            Ok(CsrfToken {
-                token: BASE_64.encode(&values[..]),
-                config,
-            })
+            Ok(CsrfToken { token, config })
         }
     }
 }
@@ -96,17 +92,26 @@ impl IntoResponse for CsrfToken {
 
 impl CsrfToken {
     ///Used to get the hashed Token to place within the form.
-    pub fn authenticity_token(&self) -> String {
-        hash(&self.token, BCRYPT_COST).unwrap()
+    pub fn authenticity_token(&self) -> Result<String, crate::CsrfError> {
+        let argon = Argon2::default();
+        let salt =
+            SaltString::encode_b64(self.config.salt.as_bytes()).map_err(|_| CsrfError::Salt)?;
+        let hash = argon
+            .hash_password(self.token.as_bytes(), &salt)
+            .map_err(|_| CsrfError::Token)?;
+        Ok(hash.to_string())
     }
 
     ///Verifies that the form returned Token and the cookie tokens match.
-    pub fn verify(&self, form_authenticity_token: &str) -> Result<(), VerificationFailure> {
-        if verify(&self.token, form_authenticity_token).unwrap_or(false) {
-            Ok(())
-        } else {
-            Err(VerificationFailure {})
-        }
+    pub fn verify(&self, form_authenticity_token: &str) -> Result<(), crate::CsrfError> {
+        let hash = PasswordHash::new(form_authenticity_token).map_err(|_| CsrfError::PasswordHash)?;
+        Argon2::default()
+            .verify_password(
+                self.token.as_bytes(),
+                &hash,
+            )
+            .map_err(|_| CsrfError::Verify)?;
+        Ok(())
     }
 }
 

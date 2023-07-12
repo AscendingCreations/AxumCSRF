@@ -37,7 +37,7 @@ async fn main() {
 // basic handler that responds with a static string
 async fn root(token: CsrfToken) -> impl IntoResponse {
     let keys = Keys {
-        authenticity_token: token.authenticity_token(),
+        authenticity_token: token.authenticity_token().unwrap(),
     };
 
     // We must return the token so that into_response will run and add it to our response cookies.

@@ -21,14 +21,14 @@ axum-core = "0.3.3"
 http = "0.2.9"
 async-trait = "0.1.68"
 rand = "0.8.5"
-bcrypt = "0.14.0"
 time = { version = "0.3.20", default-features = false, features = ["std"] }
-base64 = "0.21.0"
 cookie = { version = "0.17.0", features = [
     "percent-encode",
     "signed",
     "private",
 ] }
+argon2 = "0.5.0"
+thiserror = "1.0.43"
 
 [dev-dependencies]
 anyhow = "1.0.70"
