@@ -2,6 +2,7 @@
 members = [
     ".",
     "example/minimal",
+    "example/middleware",
 ]
 
 [package]
@@ -16,6 +17,10 @@ documentation = "https://docs.rs/axum_csrf"
 keywords = ["Axum", "CSRF", "Cookies"]
 repository = "https://github.com/AscendingCreations/AxumCSRF"
 
+[features]
+default = []
+layer = ["tower-layer", "tower-service"]
+
 [dependencies]
 axum-core = "0.3.3"
 http = "0.2.9"
@@ -29,6 +34,8 @@ cookie = { version = "0.17.0", features = [
 ] }
 argon2 = "0.5.0"
 thiserror = "1.0.43"
+tower-layer = {version = "0.3.2", optional = true}
+tower-service = {version = "0.3.2", optional = true}
 
 [dev-dependencies]
 anyhow = "1.0.70"
