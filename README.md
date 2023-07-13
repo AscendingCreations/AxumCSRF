@@ -19,8 +19,13 @@ If you need help with this library please join our [Discord Group](https://disco
 ```toml
 # Cargo.toml
 [dependencies]
-axum_csrf = "0.7.0"
+axum_csrf = "0.7.1"
 ```
+
+#### Cargo Feature Flags
+`default`: []
+
+`layer`: Disables the state and enables a service layer. Useful for middleware interations.
 
 # Example
 
@@ -98,6 +103,64 @@ The Template File
         </form>
     </body>
 </html>
+```
+
+Or use the "layer" feature if you dont want to use state:
+```rust
+use askama::Template;
+use axum::{Form, response::IntoResponse, routing::get, Router};
+use axum_csrf::{CsrfConfig, CsrfLayer, CsrfToken };
+use serde::{Deserialize, Serialize};
+use std::net::SocketAddr;
+
+#[derive(Template, Deserialize, Serialize)]
+#[template(path = "template.html")]
+struct Keys {
+    authenticity_token: String,
+    // Your attributes...
+}
+
+#[tokio::main]
+async fn main() {
+    // initialize tracing
+    tracing_subscriber::fmt::init();
+    let config = CsrfConfig::default();
+
+    // build our application with a route
+    let app = Router::new()
+        // `GET /` goes to `root` and Post Goes to check key
+        .route("/", get(root).post(check_key))
+        .layer(CsrfLayer::new(config));
+
+    // run our app with hyper
+    // `axum::Server` is a re-export of `hyper::Server`
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    tracing::debug!("listening on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+}
+
+// root creates the CSRF Token and sends it into the page for return.
+async fn root(token: CsrfToken) -> impl IntoResponse {
+    let keys = Keys {
+        //this Token is a hashed Token. it is returned and the original token is hashed for comparison.
+        authenticity_token: token.authenticity_token().unwrap(),
+    };
+
+    // We must return the token so that into_response will run and add it to our response cookies.
+    (token, keys).into_response()
+}
+
+async fn check_key(token: CsrfToken, Form(payload): Form<Keys>) -> &'static str {
+    // Verfiy the Hash and return the String message.
+    if token.verify(&payload.authenticity_token).is_err() {
+        "Token is invalid"
+    } else {
+        "Token is Valid lets do stuff!"
+    }
+}
 ```
 
 If you already have an encryption key for private cookies, build the CSRF configuration a different way:

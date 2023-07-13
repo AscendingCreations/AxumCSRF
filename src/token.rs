@@ -1,21 +1,17 @@
-use crate::{CsrfConfig, CsrfError};
+use crate::{cookies::*, CsrfConfig, CsrfError};
 use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
 use async_trait::async_trait;
+#[cfg(not(feature = "layer"))]
+use axum_core::extract::FromRef;
 use axum_core::{
-    extract::{FromRef, FromRequestParts},
+    extract::FromRequestParts,
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
-use cookie::{Cookie, CookieJar, Expiration, Key};
-use http::{
-    self,
-    header::{COOKIE, SET_COOKIE},
-    request::Parts,
-    HeaderMap,
-};
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use cookie::{Cookie, CookieJar, Expiration};
+use http::{self, request::Parts};
 use std::convert::Infallible;
 
 /// This is the Token that is generated when a user is routed to a page.
@@ -23,11 +19,12 @@ use std::convert::Infallible;
 /// Otherwise a new one is made.
 #[derive(Clone)]
 pub struct CsrfToken {
-    token: String,
-    config: CsrfConfig,
+    pub(crate) token: String,
+    pub(crate) config: CsrfConfig,
 }
 
 /// this auto pulls a Cookies nd Generates the CsrfToken from the extensions
+#[cfg(not(feature = "layer"))]
 #[async_trait]
 impl<S> FromRequestParts<S> for CsrfToken
 where
@@ -38,24 +35,27 @@ where
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let config = CsrfConfig::from_ref(state);
-        let cookie_jar = get_cookies(&mut parts.headers);
+        let token = get_token(&config, &mut parts.headers);
 
-        //We check if the Cookie Exists as a signed Cookie or not. If so we use the value of the cookie.
-        //If not we create a new one.
-        if let Some(cookie) = cookie_jar.get_cookie(&config.cookie_name, &config.key) {
-            Ok(CsrfToken {
-                token: cookie.value().to_string(),
-                config,
-            })
-        } else {
-            let token: String = thread_rng()
-                .sample_iter(&Alphanumeric)
-                .take(config.cookie_len)
-                .map(char::from)
-                .collect();
+        Ok(CsrfToken { token, config })
+    }
+}
 
-            Ok(CsrfToken { token, config })
-        }
+#[cfg(feature = "layer")]
+#[async_trait]
+impl<S> FromRequestParts<S> for CsrfToken
+where
+    S: Send + Sync,
+{
+    type Rejection = (http::StatusCode, &'static str);
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        let token = parts.extensions.get::<CsrfToken>().cloned().ok_or((
+            http::StatusCode::INTERNAL_SERVER_ERROR,
+            "Can't extract CsrfConfig. Is `CSRFLayer` enabled?",
+        ))?;
+
+        Ok(token)
     }
 }
 
@@ -110,53 +110,5 @@ impl CsrfToken {
             .verify_password(self.token.as_bytes(), &hash)
             .map_err(|_| CsrfError::Verify)?;
         Ok(())
-    }
-}
-
-pub(crate) trait CookiesExt {
-    fn get_cookie(&self, name: &str, key: &Option<Key>) -> Option<Cookie<'static>>;
-    fn add_cookie(&mut self, cookie: Cookie<'static>, key: &Option<Key>);
-}
-
-impl CookiesExt for CookieJar {
-    fn get_cookie(&self, name: &str, key: &Option<Key>) -> Option<Cookie<'static>> {
-        if let Some(key) = key {
-            self.private(key).get(name)
-        } else {
-            self.get(name).cloned()
-        }
-    }
-
-    fn add_cookie(&mut self, cookie: Cookie<'static>, key: &Option<Key>) {
-        if let Some(key) = key {
-            self.private_mut(key).add(cookie)
-        } else {
-            self.add(cookie)
-        }
-    }
-}
-
-fn get_cookies(headers: &mut HeaderMap) -> CookieJar {
-    let mut jar = CookieJar::new();
-
-    let cookie_iter = headers
-        .get_all(COOKIE)
-        .into_iter()
-        .filter_map(|value| value.to_str().ok())
-        .flat_map(|value| value.split(';'))
-        .filter_map(|cookie| Cookie::parse_encoded(cookie.to_owned()).ok());
-
-    for cookie in cookie_iter {
-        jar.add_original(cookie);
-    }
-
-    jar
-}
-
-fn set_cookies(jar: CookieJar, headers: &mut HeaderMap) {
-    for cookie in jar.delta() {
-        if let Ok(header_value) = cookie.encoded().to_string().parse() {
-            headers.append(SET_COOKIE, header_value);
-        }
     }
 }

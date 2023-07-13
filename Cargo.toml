@@ -2,11 +2,12 @@
 members = [
     ".",
     "example/minimal",
+    "example/middleware",
 ]
 
 [package]
 name = "axum_csrf"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Andrew Wheeler <genusistimelord@gmail.com>"]
 description = "Library to Provide a CSRF (Cross-Site Request Forgery) protection layer."
 edition = "2021"
@@ -15,6 +16,10 @@ readme = "README.md"
 documentation = "https://docs.rs/axum_csrf"
 keywords = ["Axum", "CSRF", "Cookies"]
 repository = "https://github.com/AscendingCreations/AxumCSRF"
+
+[features]
+default = []
+layer = ["tower-layer", "tower-service"]
 
 [dependencies]
 axum-core = "0.3.3"
@@ -29,6 +34,8 @@ cookie = { version = "0.17.0", features = [
 ] }
 argon2 = "0.5.0"
 thiserror = "1.0.43"
+tower-layer = {version = "0.3.2", optional = true}
+tower-service = {version = "0.3.2", optional = true}
 
 [dev-dependencies]
 anyhow = "1.0.70"
