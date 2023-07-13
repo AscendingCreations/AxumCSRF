@@ -24,6 +24,7 @@ axum_csrf = "0.7.1"
 
 #### Cargo Feature Flags
 `default`: []
+
 `layer`: Disables the state and enabled a service layer. Useful for middleware interations.
 
 # Example
