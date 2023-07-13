@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## 0.7.2 (13. July, 2023)
 ### Added
-- dor.rs cargo entries so layer options will appear in documents.
+- docs.rs cargo entries so layer options will appear in documents.
 
 ## 0.7.1 (13. July, 2023)
 ### Added
