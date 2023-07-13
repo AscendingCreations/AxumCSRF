@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## 0.7.1 (13. July, 2023)
+### Added
+- Layer Feature to allow getting CsrfTokens using a service.
+- Example for middleware usage.
+
 ## 0.7.0 (12. July, 2023)
 ### Changed
 - Replaced Bcrypt with Argon2.

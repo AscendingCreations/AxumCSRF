@@ -19,8 +19,12 @@ If you need help with this library please join our [Discord Group](https://disco
 ```toml
 # Cargo.toml
 [dependencies]
-axum_csrf = "0.7.0"
+axum_csrf = "0.7.1"
 ```
+
+#### Cargo Feature Flags
+`default`: []
+`layer`: Disables the state and enabled a service layer. Useful for middleware interations.
 
 # Example
 
