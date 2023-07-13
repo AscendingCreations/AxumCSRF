@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "axum_csrf"
-version = "0.7.1"
+version = "0.7.2"
 authors = ["Andrew Wheeler <genusistimelord@gmail.com>"]
 description = "Library to Provide a CSRF (Cross-Site Request Forgery) protection layer."
 edition = "2021"
@@ -40,3 +40,7 @@ tower-service = {version = "0.3.2", optional = true}
 [dev-dependencies]
 anyhow = "1.0.70"
 axum = "0.6.12"
+
+[package.metadata.docs.rs]
+features = ["layer"]
+rustdoc-args = ["--document-private-items"]
