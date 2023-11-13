@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## 0.8.0 (13. November, 2023)
+### Changed
+- Removed Argon2 inplace of Hmac<Sha256> to help prevent Dos attacks.
+- Updated Cookie to 0.18.0
+
+### Added
+- Option to enable auto appending __Host- to the cookie name to prevent subdomain attacks.
+
 ## 0.7.2 (13. July, 2023)
 ### Added
 - docs.rs cargo entries so layer options will appear in documents.
