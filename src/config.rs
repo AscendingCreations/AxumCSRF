@@ -25,7 +25,11 @@ pub struct CsrfConfig {
     pub(crate) cookie_secure: bool,
     ///Encyption Key used to encypt cookies for confidentiality, integrity, and authenticity.
     pub(crate) key: Option<Key>,
+    ///Hashing Salt.
     pub(crate) salt: Cow<'static, str>,
+    /// This is used to append __Host- to the front of all Cookie names to prevent sub domain usage.
+    /// It is disabled by default.
+    pub(crate) prefix_with_host: bool,
 }
 
 impl std::fmt::Debug for CsrfConfig {
@@ -41,6 +45,7 @@ impl std::fmt::Debug for CsrfConfig {
             .field("cookie_secure", &self.cookie_secure)
             .field("key", &"key hidden")
             .field("salt", &"salt hidden")
+            .field("prefix_with_host", &self.prefix_with_host)
             .finish()
     }
 }
@@ -216,12 +221,30 @@ impl CsrfConfig {
         self.salt = salt.into();
         self
     }
+
+    /// Set's the CSRF's prefix_with_host to either true: __Host- gets prefixed to the cookie names false: __Host- does not get prepended.
+    ///
+    /// __Host- prefix: Cookies with names starting with __Host- must be set with the secure flag, must be from a secure page (HTTPS),
+    /// must not have a domain specified (and therefore, are not sent to subdomains), and the path must be /.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use axum_csrf::CsrfConfig;
+    ///
+    /// let config = CsrfConfig::default().with_prefix_with_host(true);
+    /// ```
+    ///
+    #[must_use]
+    pub fn with_prefix_with_host(mut self, enable: bool) -> Self {
+        self.prefix_with_host = enable;
+        self
+    }
 }
 
 impl Default for CsrfConfig {
     fn default() -> Self {
         Self {
-            /// Set to 6hour for default in Database Session stores.
+            // Set to 6hour for default in Database Session stores.
             lifespan: Duration::hours(6),
             cookie_name: "Csrf_Token".into(),
             cookie_path: "/".into(),
@@ -238,6 +261,7 @@ impl Default for CsrfConfig {
                 .map(char::from)
                 .collect::<String>()
                 .into(),
+            prefix_with_host: false,
         }
     }
 }

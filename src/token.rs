@@ -1,8 +1,4 @@
 use crate::{cookies::*, CsrfConfig, CsrfError};
-use argon2::{
-    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2,
-};
 use async_trait::async_trait;
 #[cfg(not(feature = "layer"))]
 use axum_core::extract::FromRef;
@@ -13,6 +9,10 @@ use axum_core::{
 use cookie::{Cookie, CookieJar, Expiration};
 use http::{self, request::Parts};
 use std::convert::Infallible;
+
+use base64ct::{Base64, Encoding};
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
 
 /// This is the Token that is generated when a user is routed to a page.
 /// If a Cookie exists then it will be used as the Token.
@@ -66,18 +66,27 @@ impl IntoResponseParts for CsrfToken {
         let mut jar = CookieJar::new();
         let lifespan = time::OffsetDateTime::now_utc() + self.config.lifespan;
 
-        let mut cookie_builder = Cookie::build(self.config.cookie_name.clone(), self.token.clone())
-            .path(self.config.cookie_path.clone())
-            .secure(self.config.cookie_secure)
-            .http_only(self.config.cookie_http_only)
-            .same_site(self.config.cookie_same_site)
-            .expires(Expiration::DateTime(lifespan));
+        let mut cookie_builder = Cookie::build((
+            if self.config.prefix_with_host {
+                let mut prefixed = "__Host-".to_owned();
+                prefixed.push_str(&self.config.cookie_name);
+                prefixed
+            } else {
+                self.config.cookie_name.clone()
+            },
+            self.token.clone(),
+        ))
+        .path(self.config.cookie_path.clone())
+        .secure(self.config.cookie_secure)
+        .http_only(self.config.cookie_http_only)
+        .same_site(self.config.cookie_same_site)
+        .expires(Expiration::DateTime(lifespan));
 
         if let Some(domain) = &self.config.cookie_domain {
             cookie_builder = cookie_builder.domain(domain.clone());
         }
 
-        jar.add_cookie(cookie_builder.finish(), &self.config.key);
+        jar.add_cookie(cookie_builder.build(), &self.config.key);
 
         set_cookies(jar, res.headers_mut());
         Ok(res)
@@ -93,22 +102,25 @@ impl IntoResponse for CsrfToken {
 impl CsrfToken {
     ///Used to get the hashed Token to place within the form.
     pub fn authenticity_token(&self) -> Result<String, crate::CsrfError> {
-        let argon = Argon2::default();
-        let salt =
-            SaltString::encode_b64(self.config.salt.as_bytes()).map_err(|_| CsrfError::Salt)?;
-        let hash = argon
-            .hash_password(self.token.as_bytes(), &salt)
-            .map_err(|_| CsrfError::Token)?;
-        Ok(hash.to_string())
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.config.salt.as_bytes())
+            .map_err(|_| CsrfError::Salt)?;
+        mac.update(self.token.as_bytes());
+
+        let result = mac.finalize();
+        let bytes = result.into_bytes();
+        Ok(Base64::encode_string(&bytes))
     }
 
     ///Verifies that the form returned Token and the cookie tokens match.
     pub fn verify(&self, form_authenticity_token: &str) -> Result<(), crate::CsrfError> {
-        let hash =
-            PasswordHash::new(form_authenticity_token).map_err(|_| CsrfError::PasswordHash)?;
-        Argon2::default()
-            .verify_password(self.token.as_bytes(), &hash)
-            .map_err(|_| CsrfError::Verify)?;
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.config.salt.as_bytes())
+            .map_err(|_| CsrfError::Salt)?;
+        mac.update(self.token.as_bytes());
+
+        mac.verify_slice(
+            &Base64::decode_vec(form_authenticity_token).map_err(|_| CsrfError::PasswordHash)?,
+        )
+        .map_err(|_| CsrfError::Verify)?;
         Ok(())
     }
 }
