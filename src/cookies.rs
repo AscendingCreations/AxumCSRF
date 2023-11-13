@@ -57,10 +57,21 @@ pub(crate) fn set_cookies(jar: CookieJar, headers: &mut HeaderMap) {
 
 pub(crate) fn get_token(config: &CsrfConfig, headers: &mut HeaderMap) -> String {
     let cookie_jar = get_cookies(headers);
+    let mut prefixed = String::with_capacity(config.cookie_name.len() + "__Host-".len());
+
+    if config.prefix_with_host {
+        prefixed.push_str("__Host-");
+        prefixed.push_str(&config.cookie_name);
+    } else {
+        prefixed.push_str(&config.cookie_name);
+    }
 
     //We check if the Cookie Exists as a signed Cookie or not. If so we use the value of the cookie.
     //If not we create a new one.
-    if let Some(cookie) = cookie_jar.get_cookie(&config.cookie_name, &config.key) {
+    if let Some(cookie) = cookie_jar.get_cookie(
+        &prefixed,
+        &config.key,
+    ) {
         cookie.value().to_owned()
     } else {
         thread_rng()
