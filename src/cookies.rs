@@ -68,10 +68,7 @@ pub(crate) fn get_token(config: &CsrfConfig, headers: &mut HeaderMap) -> String 
 
     //We check if the Cookie Exists as a signed Cookie or not. If so we use the value of the cookie.
     //If not we create a new one.
-    if let Some(cookie) = cookie_jar.get_cookie(
-        &prefixed,
-        &config.key,
-    ) {
+    if let Some(cookie) = cookie_jar.get_cookie(&prefixed, &config.key) {
         cookie.value().to_owned()
     } else {
         thread_rng()

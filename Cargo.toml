@@ -22,8 +22,8 @@ default = []
 layer = ["tower-layer", "tower-service"]
 
 [dependencies]
-axum-core = "0.3.3"
-http = "0.2.9"
+axum-core = "0.4.0"
+http = "1.0.0"
 async-trait = "0.1.68"
 rand = "0.8.5"
 time = { version = "0.3.20", default-features = false, features = ["std"] }

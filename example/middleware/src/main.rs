@@ -1,18 +1,17 @@
 use askama::Template;
 use axum::{
-    body::{self, BoxBody, Full},
-    http::{Method, Request, StatusCode},
+    body::Body,
+    extract::Request,
+    http::{Method, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
     routing::{get, post},
     Form, Router,
 };
 use axum_csrf::{CsrfConfig, CsrfLayer, CsrfToken, Key};
-
+use http_body_util::BodyExt;
 use serde::{Deserialize, Serialize};
-use std::net::SocketAddr;
-use tower::ServiceBuilder;
-use tower_http::ServiceBuilderExt;
+use tokio::net::TcpListener;
 
 #[derive(Template, Deserialize, Serialize)]
 #[template(path = "template.html")]
@@ -31,23 +30,15 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .route("/", post(check_key))
-        .layer(
-            ServiceBuilder::new()
-                .map_request_body(body::boxed)
-                .layer(axum::middleware::from_fn(auth_middleware)),
-        )
+        .layer(axum::middleware::from_fn(auth_middleware))
         // `GET /` goes to `root` and Post Goes to check key
         .route("/", get(root))
         .layer(CsrfLayer::new(config));
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 
 // basic handler that responds with a static string
@@ -64,14 +55,18 @@ async fn root(token: CsrfToken) -> impl IntoResponse {
 pub async fn auth_middleware(
     token: CsrfToken,
     method: Method,
-    mut request: Request<BoxBody>,
-    next: Next<BoxBody>,
+    mut request: Request,
+    next: Next,
 ) -> Result<Response, StatusCode> {
     if method == Method::POST {
         let (parts, body) = request.into_parts();
-        let bytes = hyper::body::to_bytes(body)
+
+        let bytes = body
+            .collect()
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .to_bytes()
+            .to_vec();
 
         let value = serde_urlencoded::from_bytes(&bytes)
             .map_err(|_| -> StatusCode { StatusCode::INTERNAL_SERVER_ERROR })?;
@@ -80,7 +75,7 @@ pub async fn auth_middleware(
             return Err(StatusCode::UNAUTHORIZED);
         }
 
-        request = Request::from_parts(parts, body::boxed(Full::from(bytes)));
+        request = Request::from_parts(parts, Body::from(bytes));
     }
 
     Ok(next.run(request).await)

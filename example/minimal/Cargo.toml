@@ -4,13 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.6.12"
+axum = "0.7.1"
 serde = { version = "1.0.159", features = ["derive"] }
 tokio = { version = "1.29.1", features = ["full"] }
 askama = "0.12.0"
-askama_axum = "0.3.0"
+askama_axum = "0.4.0"
 tracing = "0.1.37"
 tracing-subscriber = "0.3.16"
 
 [dependencies.axum_csrf]
+#version = "0.8.0"
 path = "../.."

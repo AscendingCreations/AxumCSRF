@@ -2,7 +2,7 @@ use askama::Template;
 use axum::{response::IntoResponse, routing::get, Form, Router};
 use axum_csrf::{CsrfConfig, CsrfToken, Key};
 use serde::{Deserialize, Serialize};
-use std::net::SocketAddr;
+use tokio::net::TcpListener;
 
 #[derive(Template, Deserialize, Serialize)]
 #[template(path = "template.html")]
@@ -26,12 +26,8 @@ async fn main() {
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 
 // basic handler that responds with a static string
@@ -41,7 +37,7 @@ async fn root(token: CsrfToken) -> impl IntoResponse {
     };
 
     // We must return the token so that into_response will run and add it to our response cookies.
-    (token, keys).into_response()
+    (token, keys)
 }
 
 async fn check_key(token: CsrfToken, Form(payload): Form<Keys>) -> &'static str {
