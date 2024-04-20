@@ -2,7 +2,7 @@
     Axum_CSRF
 </h1>
 <div align="center">
-    Library to provide a CSRF (Cross-Site Request Forgery) protection layer to axum-based web applications. Axum 0.6 is currently supported.
+    Library to provide a CSRF (Cross-Site Request Forgery) protection layer to axum-based web applications. Axum 0.7 is currently supported.
 </div>
 <br />
 <div align="center">
