@@ -39,10 +39,6 @@ hmac = "0.12.1"
 sha2 = "0.10.8"
 base64ct = {version = "1.6.0", features = ["alloc"]}
 
-[dev-dependencies]
-anyhow = "1.0.70"
-axum = "0.6.12"
-
 [package.metadata.docs.rs]
 features = ["layer"]
 rustdoc-args = ["--document-private-items"]
