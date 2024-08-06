@@ -4,7 +4,7 @@ use thiserror::Error;
 pub enum CsrfError {
     #[error("Token could not be hashed.")]
     PasswordHash,
-    #[error("Verfication Failed")]
+    #[error("Verification Failed.")]
     Verify,
     #[error("Could not Encode Salt.")]
     Salt,
