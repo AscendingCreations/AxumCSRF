@@ -64,7 +64,7 @@ impl CsrfConfig {
     /// ```rust
     /// use axum_csrf::CsrfConfig;
     ///
-    /// let config = CsrfConfig::default().with_cookie_domain(Some("www.helpme.com".to_string()));
+    /// let config = CsrfConfig::default().with_cookie_domain(Some("www.helpme.com"));
     /// ```
     ///
     #[must_use]
