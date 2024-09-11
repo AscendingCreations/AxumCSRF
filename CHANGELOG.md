@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## 0.10.0 (11. September, 2024)
+### Changed
+- (Breaking) Fixed with_cookie_domain optional string intake.
+
 ## 0.9.0 (27. November, 2023)
 ### Changed
 - (Breaking) Updated axum_core to support axum 0.7.0
