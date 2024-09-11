@@ -22,19 +22,19 @@ default = []
 layer = ["tower-layer", "tower-service"]
 
 [dependencies]
-axum-core = "0.4.0"
-http = "1.0.0"
-async-trait = "0.1.68"
+axum-core = "0.4.3"
+http = "1.1.0"
+async-trait = "0.1.82"
 rand = "0.8.5"
-time = { version = "0.3.20", default-features = false, features = ["std"] }
-cookie = { version = "0.18.0", features = [
+time = { version = "0.3.36", default-features = false, features = ["std"] }
+cookie = { version = "0.18.1", features = [
     "percent-encode",
     "signed",
     "private",
 ] }
-thiserror = "1.0.43"
-tower-layer = {version = "0.3.2", optional = true}
-tower-service = {version = "0.3.2", optional = true}
+thiserror = "1.0.63"
+tower-layer = {version = "0.3.3", optional = true}
+tower-service = {version = "0.3.3", optional = true}
 hmac = "0.12.1"
 sha2 = "0.10.8"
 base64ct = {version = "1.6.0", features = ["alloc"]}
