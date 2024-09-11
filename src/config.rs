@@ -68,8 +68,11 @@ impl CsrfConfig {
     /// ```
     ///
     #[must_use]
-    pub fn with_cookie_domain(mut self, name: impl Into<Option<Cow<'static, str>>>) -> Self {
-        self.cookie_domain = name.into();
+    pub fn with_cookie_domain<T>(mut self, name: Option<T>) -> Self
+    where
+        T: Into<Cow<'static, str>>,
+    {
+        self.cookie_domain = name.map(|v| v.into());
         self
     }
 

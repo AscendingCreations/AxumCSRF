@@ -25,7 +25,9 @@ async fn main() {
     // initialize tracing
     tracing_subscriber::fmt::init();
     let cookie_key = Key::generate();
-    let config = CsrfConfig::default().with_key(Some(cookie_key));
+    let config = CsrfConfig::default()
+        .with_key(Some(cookie_key))
+        .with_cookie_domain(Some("127.0.0.1"));
 
     // build our application with a route
     let app = Router::new()
