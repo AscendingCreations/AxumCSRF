@@ -1,9 +1,5 @@
 [workspace]
-members = [
-    ".",
-    "example/minimal",
-    "example/middleware",
-]
+members = [".", "example/minimal", "example/middleware"]
 
 [package]
 name = "axum_csrf"
@@ -19,7 +15,7 @@ repository = "https://github.com/AscendingCreations/AxumCSRF"
 
 [features]
 default = []
-layer = ["tower-layer", "tower-service"]
+layer = ["dep:tower-layer", "dep:tower-service"]
 
 [dependencies]
 axum-core = "0.4.3"
@@ -33,12 +29,12 @@ cookie = { version = "0.18.1", features = [
     "private",
 ] }
 thiserror = "1.0.63"
-tower-layer = {version = "0.3.3", optional = true}
-tower-service = {version = "0.3.3", optional = true}
+tower-layer = { version = "0.3.3", optional = true }
+tower-service = { version = "0.3.3", optional = true }
 hmac = "0.12.1"
 sha2 = "0.10.8"
-base64ct = {version = "1.6.0", features = ["alloc"]}
+base64ct = { version = "1.6.0", features = ["alloc"] }
 
 [package.metadata.docs.rs]
 features = ["layer"]
-rustdoc-args = ["--document-private-items"]
+rustdoc-args = ["--document-private-items", "--cfg", "docsrs"]
