@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## 0.10.2 (21. November, 2024)
+### Changed
+- Skip expires attribute on cookie if lifespan is 0 @adayoung
+- Updated ThisError to 2.0.3
+
 ## 0.10.1 (28. October, 2024)
 ### Added
 - Tags to Docs for features @joshka

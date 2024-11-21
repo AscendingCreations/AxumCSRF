@@ -19,7 +19,7 @@ If you need help with this library please join our [Discord Group](https://disco
 ```toml
 # Cargo.toml
 [dependencies]
-axum_csrf = "0.9.0"
+axum_csrf = "0.10.2"
 ```
 
 #### Cargo Feature Flags

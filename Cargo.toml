@@ -3,7 +3,7 @@ members = [".", "example/minimal", "example/middleware"]
 
 [package]
 name = "axum_csrf"
-version = "0.10.1"
+version = "0.10.2"
 authors = ["Andrew Wheeler <genusistimelord@gmail.com>"]
 description = "Library to Provide a CSRF (Cross-Site Request Forgery) protection layer."
 edition = "2021"
@@ -28,7 +28,7 @@ cookie = { version = "0.18.1", features = [
     "signed",
     "private",
 ] }
-thiserror = "1.0.65"
+thiserror = "2.0.3"
 tower-layer = { version = "0.3.3", optional = true }
 tower-service = { version = "0.3.3", optional = true }
 hmac = "0.12.1"
