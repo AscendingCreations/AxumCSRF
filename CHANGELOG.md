@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## 0.11.0 (1. Janurary, 2025)
+### Changed
+- (Breaking) Updated to Axum 0.8.1"
+
 ## 0.10.2 (21. November, 2024)
 ### Changed
 - Skip expires attribute on cookie if lifespan is 0 @adayoung
