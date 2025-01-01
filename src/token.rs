@@ -1,5 +1,4 @@
 use crate::{cookies::*, CsrfConfig, CsrfError};
-use async_trait::async_trait;
 #[cfg(not(feature = "layer"))]
 use axum_core::extract::FromRef;
 use axum_core::{
@@ -25,7 +24,6 @@ pub struct CsrfToken {
 
 /// this auto pulls a Cookies nd Generates the CsrfToken from the extensions
 #[cfg(not(feature = "layer"))]
-#[async_trait]
 impl<S> FromRequestParts<S> for CsrfToken
 where
     S: Send + Sync,
@@ -42,7 +40,6 @@ where
 }
 
 #[cfg(feature = "layer")]
-#[async_trait]
 impl<S> FromRequestParts<S> for CsrfToken
 where
     S: Send + Sync,

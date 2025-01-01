@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.7.5"
+axum = "0.8.1"
 serde = { version = "1.0.210", features = ["derive"] }
 tokio = { version = "1.40.0", features = ["full"] }
 askama = "0.12.1"
@@ -12,7 +12,7 @@ askama_axum = "0.4.0"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 serde_urlencoded = "0.7.1"
-hyper = "1.4.1"
+hyper = "1.5.2"
 http-body-util = "0.1.2"
 
 [dependencies.axum_csrf]

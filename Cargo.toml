@@ -18,17 +18,17 @@ default = []
 layer = ["dep:tower-layer", "dep:tower-service"]
 
 [dependencies]
-axum-core = "0.4.5"
-http = "1.1.0"
+axum-core = "0.5.0"
+http = "1.2.0"
 async-trait = "0.1.83"
 rand = "0.8.5"
-time = { version = "0.3.36", default-features = false, features = ["std"] }
+time = { version = "0.3.37", default-features = false, features = ["std"] }
 cookie = { version = "0.18.1", features = [
     "percent-encode",
     "signed",
     "private",
 ] }
-thiserror = "2.0.3"
+thiserror = "2.0.9"
 tower-layer = { version = "0.3.3", optional = true }
 tower-service = { version = "0.3.3", optional = true }
 hmac = "0.12.1"
